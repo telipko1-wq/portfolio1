@@ -4,7 +4,7 @@
 
 /* ---------- ДАННЫЕ РАБОТ ----------
    Чтобы добавить кейс — скопируйте блок и поменяйте поля.
-   img: путь к файлу в папке images/
+   img: путь к файлу рядом с index.html
 ------------------------------------- */
 const WORKS = [
   {
@@ -254,6 +254,7 @@ const I18N = {
     "rest.before": "До",
     "rest.after": "После",
     "rest.hint": "Потяните за ползунок, чтобы сравнить",
+    "rest.pair": "Пример",
     "rest.sliderLabel": "Сравнение фото до и после реставрации",
     "rest.l1t": "Реставрация",
     "rest.l1d": "Убираю царапины, пятна и заломы, восстанавливаю утраченные детали, возвращаю естественный цвет. Бережно — без «пластикового» лица.",
@@ -331,6 +332,7 @@ const I18N = {
     "rest.before": "Before",
     "rest.after": "After",
     "rest.hint": "Drag the slider to compare",
+    "rest.pair": "Example",
     "rest.sliderLabel": "Before and after restoration comparison",
     "rest.l1t": "Restoration",
     "rest.l1d": "I remove scratches, stains and creases, rebuild lost details and bring back natural colour. Carefully — without a plastic-looking face.",
@@ -579,6 +581,22 @@ function initBeforeAfter(){
   const handle = document.getElementById("baHandle");
   if(!ba || !before || !handle) return;
 
+  /* пары «до/после» — первая показывается по умолчанию */
+  const PAIRS = [
+    { before: "pair1-before.jpg", after: "pair1-after.jpg" },
+    { before: "pair2-before.jpg", after: "pair2-after.jpg" },
+    { before: "pair3-before.jpg", after: "pair3-after.jpg" },
+    { before: "pair4-before.jpg", after: "pair4-after.jpg" },
+    { before: "pair5-before.jpg", after: "pair5-after.jpg" },
+    { before: "pair6-before.jpg", after: "pair6-after.jpg" },
+    { before: "pair7-before.jpg", after: "pair7-after.jpg" },
+    { before: "pair8-before.jpg", after: "pair8-after.jpg" },
+    { before: "pair9-before.jpg", after: "pair9-after.jpg" }
+  ];
+  const thumbs = document.getElementById("baThumbs");
+  const imgAfter = document.getElementById("baAfterImg");
+  const imgBefore = before.querySelector("img");
+
   let pos = 50;
   let dragging = false;
 
@@ -606,6 +624,22 @@ function initBeforeAfter(){
     if(e.cancelable) e.preventDefault();
   }
   function end(){ dragging = false; }
+
+  /* переключение между примерами */
+  if(thumbs && imgAfter && imgBefore){
+    thumbs.innerHTML = PAIRS.map((p, i) =>
+      `<button type="button" class="ba-thumb${i === 0 ? " is-active" : ""}" data-i="${i}" aria-label="${I18N[lang]["rest.pair"]} ${i + 1}"><img src="${p.after}" alt="" loading="lazy"></button>`
+    ).join("");
+    thumbs.addEventListener("click", e => {
+      const btn = e.target.closest(".ba-thumb");
+      if(!btn) return;
+      const i = +btn.dataset.i;
+      const pair = PAIRS[i];
+      imgAfter.src = pair.after;
+      imgBefore.src = pair.before;
+      thumbs.querySelectorAll(".ba-thumb").forEach(x => x.classList.toggle("is-active", x === btn));
+    });
+  }
 
   ba.addEventListener("mousedown", start);
   window.addEventListener("mousemove", move);
